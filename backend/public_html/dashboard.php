@@ -1,0 +1,14 @@
+<?php
+declare(strict_types=1);
+require dirname(__DIR__) . '/hoteltv/bootstrap/app.php';
+hoteltv_require_admin();
+$counts = array();
+foreach (array('properties','rooms','devices','activation_codes') as $table) {
+    $counts[$table] = (int)$pdo->query('SELECT COUNT(*) FROM ' . $table)->fetchColumn();
+}
+$online = (int)$pdo->query("SELECT COUNT(*) FROM devices WHERE status='online'")->fetchColumn();
+$pending = (int)$pdo->query("SELECT COUNT(*) FROM devices WHERE status='pending'")->fetchColumn();
+$recent = $pdo->query("SELECT d.*, r.room_number, p.name property_name FROM devices d LEFT JOIN rooms r ON r.id=d.room_id LEFT JOIN properties p ON p.id=d.property_id ORDER BY d.id DESC LIMIT 8")->fetchAll();
+hoteltv_admin_header('Dashboard','dashboard');
+?><div class="stat-grid"><a class="stat-card" href="/properties.php"><span>Properties</span><strong><?=$counts['properties']?></strong><small>Managed hotel locations</small></a><a class="stat-card" href="/rooms.php"><span>Rooms</span><strong><?=$counts['rooms']?></strong><small>Configured guest rooms</small></a><a class="stat-card" href="/devices.php"><span>Devices</span><strong><?=$counts['devices']?></strong><small><?=$online?> online · <?=$pending?> pending</small></a><a class="stat-card warning" href="/devices.php?status=pending"><span>Needs attention</span><strong><?=$pending?></strong><small>Pending TV activations</small></a></div>
+<div class="dashboard-grid"><section class="card"><div class="section-head"><div><h2>Device activity</h2><p>Latest registered televisions</p></div><a class="button secondary small" href="/devices.php">View all</a></div><?php if(!$recent):?><div class="empty"><strong>No televisions registered yet</strong><p>The Android TV app will appear here after requesting an activation code.</p></div><?php else:?><div class="table-wrap"><table><thead><tr><th>Device</th><th>Room</th><th>Status</th><th>Last seen</th></tr></thead><tbody><?php foreach($recent as $device):?><tr><td><strong><?=h($device['display_name'] ?: $device['device_model'] ?: 'Unnamed TV')?></strong><small><?=h($device['app_version'] ?: 'Unknown app version')?></small></td><td><?=h($device['property_name'] ?: 'Unassigned')?><?=!empty($device['room_number'])?' · '.h($device['room_number']):''?></td><td><span class="status status-<?=h($device['status'])?>"><?=h(ucfirst($device['status']))?></span></td><td><?=h($device['last_seen_at'] ?: 'Never')?></td></tr><?php endforeach;?></tbody></table></div><?php endif;?></section><aside class="card quick-card"><h2>Quick setup</h2><ol class="setup-list"><li><a href="/properties.php">Confirm property details</a></li><li><a href="/rooms.php">Create floors and rooms</a></li><li><a href="/devices.php">Activate the first television</a></li><li><a href="/iptv.php">Add an IPTV account</a></li></ol><div class="note">The first Android TV build will use the device activation API already included in this panel.</div></aside></div><?php hoteltv_admin_footer(); ?>
