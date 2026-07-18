@@ -1,9 +1,35 @@
-# HotelTV Android TV
+# HotelTV Manager for Android TV
 
-Package: `com.hoteltv.manager`
+Initial Android TV administration client for the HotelTV Manager platform.
 
-Version: `0.1.0-alpha1`
+## Included in this first scaffold
 
-Minimum Android version: Android 6.0 / API 23
+- Kotlin and Jetpack Compose for TV
+- Android TV launcher integration and landscape layout
+- Hosted server or local `.hoteltv-manager.db` configuration
+- Username/password entry with saved configuration
+- TV remote-friendly dashboard cards
+- Property, room, device, playlist, messaging and system-status placeholders
+- GitHub Actions workflow that builds a downloadable debug APK
 
-The first alpha implements hotel activation and direct Xtream Codes login. It is intentionally a provisioning alpha; Live TV, EPG, movies and series follow after the activation/login flow is proven on real devices.
+## Build the APK in GitHub
+
+1. Upload this project to the root of `RyuleDreg/HotelTV-Manager`.
+2. Open the repository's **Actions** tab.
+3. Select **Build Android APK** and press **Run workflow**, or simply push a commit.
+4. Open the completed run and download **HotelTV-Manager-debug-apk** under Artifacts.
+5. Extract the ZIP to obtain `app-debug.apk`.
+
+## Local build
+
+Install JDK 17 and Gradle 8.13, then run:
+
+```bash
+gradle assembleDebug
+```
+
+The APK will be created at `app/build/outputs/apk/debug/app-debug.apk`.
+
+## Next development stage
+
+Connect the login screen to the HotelTV Manager backend, implement the local SQLite database provider, and replace dashboard placeholders with property/room/device CRUD screens.
